@@ -1,4 +1,6 @@
 /* This file is contains them variables */
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
 
 $body-bg: #EEE;
 $input-border-color: #CCC;
@@ -10,3 +12,5 @@ $theme-colors: (
   "danger": #EC3646,
   "info": #39ACDC,
 );
+
+@import "~bootstrap/scss/bootstrap";

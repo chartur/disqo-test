@@ -1,15 +1,27 @@
-<form>
+<form [formGroup]="notepadForm">
   <div class="row">
     <div class="col-12 col-md-6 col-lg-4">
       <div>
         <label for="notepad-title">Notepad Title</label>
-        <input id="notepad-title" class="form-control" placeholder="My notepad title" type="text">
+        <input id="notepad-title" formControlName="title" class="form-control" placeholder="My notepad title" type="text">
+      </div>
+      <div *ngIf="notepadForm.get('title').invalid &&
+        notepadForm.get('title').errors &&
+        (notepadForm.get('title').dirty ||
+        notepadForm.get('title').touched)"
+      >
+        <small class="text-danger" *ngIf="notepadForm.get('title').hasError('required')">
+          This field is required.
+        </small>
+        <small class="text-danger" *ngIf="notepadForm.get('title').hasError('maxlength')">
+          The maximum length for this field is {{notepadForm.get('title').errors.maxlength.requiredLength}} characters.
+        </small>
       </div>
     </div>
     <div class="col-12 col-md-6 col-lg-8">
       <div class="d-flex justify-content-between justify-content-md-end align-items-center h-100 mt-2 mt-md-0">
         <button class="btn btn-outline-transparent btn-lg me-2">View Stats</button>
-        <button class="btn btn-info btn-lg me-2">Save</button>
+        <button class="btn btn-info btn-lg me-2" [disabled]="!notepadForm.valid" (click)="saveNotepad()">Save</button>
         <button class="btn btn-danger btn-lg">Delete</button>
       </div>
     </div>
