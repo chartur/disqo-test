@@ -2,11 +2,18 @@ import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {endpoints} from "../../environments/environment";
 import {Notepad} from "../models/notepad";
+import {BehaviorSubject} from "rxjs";
+import {tap} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotepadService {
+
+  private _notepad: BehaviorSubject<Notepad> = new BehaviorSubject<Notepad>(null);
+
+  public readonly notepadStream$ = this._notepad.asObservable();
+
   constructor(
     private http: HttpClient
   ) {}
@@ -22,6 +29,6 @@ export class NotepadService {
       }
     };
 
-    return this.http.post(endpoints.createNotepad, data).toPromise();
+    return this.http.post(endpoints.createNotepad, data).toPromise()
   }
 }

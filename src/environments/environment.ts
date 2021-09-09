@@ -5,5 +5,7 @@ export const environment = {
 };
 
 export const endpoints = {
+  getGists: `${environment.baseUrl}/gists`, // GET
   createNotepad: `${environment.baseUrl}/gists`, // POST
+  getPublicGists: `${environment.baseUrl}/gists/public`, // GET
 };

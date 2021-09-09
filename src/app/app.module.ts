@@ -7,11 +7,13 @@ import { NotepadComponent } from './pages/notepad/notepad.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {ReactiveFormsModule} from "@angular/forms";
 import {AccessTokenInterceptor} from "../interceptors/access-token.interceptor";
+import { StatisticsComponent } from './pages/statistics/statistics.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    NotepadComponent
+    NotepadComponent,
+    StatisticsComponent
   ],
   imports: [
     BrowserModule,

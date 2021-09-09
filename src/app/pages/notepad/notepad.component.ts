@@ -21,7 +21,7 @@ export class NotepadComponent implements OnInit {
         Validators.required,
         Validators.maxLength(255)
       ])
-    })
+    });
   }
 
   saveNotepad(): void {
