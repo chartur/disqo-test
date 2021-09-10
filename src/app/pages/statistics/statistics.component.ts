@@ -5,6 +5,7 @@ import * as am4charts from "@amcharts/amcharts4/charts";
 import {Subscription} from "rxjs";
 import * as moment from "moment";
 import { extendMoment } from 'moment-range';
+import {skipWhile, take} from "rxjs/operators";
 
 @Component({
   selector: 'app-statistics',
@@ -15,16 +16,39 @@ export class StatisticsComponent implements OnInit, OnDestroy {
 
   public gists: any[] = [];
   private publicGistsSubscription: Subscription;
+  private loadMoreGistsSubscription: Subscription;
+
+  public chartGists: any;
+  public chartFiles: any;
 
   constructor(
     private gistService: GistService
   ) { }
 
   ngOnInit(): void {
-    this.publicGistsSubscription = this.gistService.publicGistsStream$.subscribe(g => {
-      this.gists = g;
-      this.chartInit();
-    });
+    this.publicGistsSubscription = this.gistService.publicGistsStream$
+      .pipe(
+        skipWhile(val => val.length <= 0),
+        take(1)
+      )
+      .subscribe(g => {
+        this.gists = g;
+        this.chartInit();
+      });
+
+    this.loadMoreGistsSubscription = this.gistService.loadMoteGistsStream$
+      .subscribe(data => {
+
+        this.gists = [
+          ...this.gists,
+          ...data
+        ];
+
+        const range = this.makeChartData(this.gists);
+
+        this.chartGists.data = range;
+        this.chartFiles.data = range;
+      })
   }
 
   ngOnDestroy(): void {
@@ -37,46 +61,56 @@ export class StatisticsComponent implements OnInit, OnDestroy {
 
   chartInit() {
     am4core.ready(() => {
-      const chartGists = am4core.create("chartgists", am4charts.XYChart);
-      const chartFiles = am4core.create("chartfiles", am4charts.XYChart);
+      this.chartGists = am4core.create("chartgists", am4charts.XYChart);
+      this.chartFiles = am4core.create("chartfiles", am4charts.XYChart);
 
-      const rangeMoment = extendMoment(moment);
-      const range = [];
+
       if(this.gists.length) {
-        const endDateTime = moment(this.gists[0].created_at);
-        const startDateTime = moment(this.gists[this.gists.length - 1].created_at);
-        if(startDateTime.seconds() % 5) {
-          startDateTime.subtract(startDateTime.seconds() % 5, 'seconds');
-        }
-
-        const startEndRange = rangeMoment.range(startDateTime, endDateTime);
-
-
-        let flagDate = startDateTime.clone();
-
-        while (startEndRange.contains(flagDate)) {
-          const item = {
-            date: flagDate.format('yyyy-MM-DD HH:mm:ss'),
-            gists: this.gists.filter(gist => {
-              const d = moment(gist.created_at);
-              const prevFiveSec = flagDate.clone().subtract(5, 'seconds');
-              return rangeMoment.range(prevFiveSec, flagDate).contains(d);
-            }).length,
-            files: this.gists.filter(gist => {
-              const d = moment(gist.created_at);
-              const prevFiveSec = flagDate.clone().subtract(5, 'seconds');
-              return rangeMoment.range(prevFiveSec, flagDate).contains(d);
-            }).map(e => Object.keys(e.files).length).reduce((prev, next) => prev + next, 0)
-          };
-
-          range.push(item);
-          flagDate.add(5, 'seconds');
-        }
-
-        this.buildChart(chartGists, range, 'gists')
-        this.buildChart(chartFiles, range, 'files')
+        const range = this.makeChartData(this.gists);
+        this.buildChart(this.chartGists, range, 'gists')
+        this.buildChart(this.chartFiles, range, 'files')
       }
     });
+  }
+
+  private makeChartData(gists: any[]) {
+    if(!gists.length) {
+      return [];
+    }
+
+    const range = [];
+    const rangeMoment = extendMoment(moment);
+
+    const endDateTime = moment(gists[0].created_at);
+    const startDateTime = moment(gists[gists.length - 1].created_at);
+    if(startDateTime.seconds() % 5) {
+      startDateTime.subtract(startDateTime.seconds() % 5, 'seconds');
+    }
+
+    const startEndRange = rangeMoment.range(startDateTime, endDateTime);
+
+    let flagDate = startDateTime.clone();
+
+    while (startEndRange.contains(flagDate)) {
+      const item = {
+        date: flagDate.format('yyyy-MM-DD HH:mm:ss'),
+        gists: gists.filter(gist => {
+          const d = moment(gist.created_at);
+          const prevFiveSec = flagDate.clone().subtract(5, 'seconds');
+          return rangeMoment.range(prevFiveSec, flagDate).contains(d);
+        }).length,
+        files: gists.filter(gist => {
+          const d = moment(gist.created_at);
+          const prevFiveSec = flagDate.clone().subtract(5, 'seconds');
+          return rangeMoment.range(prevFiveSec, flagDate).contains(d);
+        }).map(e => Object.keys(e.files).length).reduce((prev, next) => prev + next, 0)
+      };
+
+      range.push(item);
+      flagDate.add(5, 'seconds');
+    }
+
+    return range;
   }
 
   private buildChart(chart: any, range: any[], key: string) {

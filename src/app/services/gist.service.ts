@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {endpoints} from "../../environments/environment";
 import {Notepad} from "../models/notepad";
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {tap} from "rxjs/operators";
 
 @Injectable({
@@ -15,8 +15,10 @@ export class GistService {
   private perPage = 30;
 
   private _publicGists: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  private _loadMoreGists: Subject<any[]> = new Subject<any[]>();
 
   readonly publicGistsStream$: Observable<any[]> = this._publicGists.asObservable();
+  readonly loadMoteGistsStream$: Observable<any[]> = this._loadMoreGists.asObservable();
 
   constructor(
     private http: HttpClient
@@ -37,5 +39,6 @@ export class GistService {
     ];
     this.page++;
     this._publicGists.next(data);
+    this._loadMoreGists.next(res);
   }
 }
