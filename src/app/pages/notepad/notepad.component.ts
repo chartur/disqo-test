@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {NotepadService} from "../../services/notepad.service";
+import {Subscription} from "rxjs";
+import {Notepad} from "../../models/notepad";
+import {Note} from "../../models/note";
 
 @Component({
   selector: 'app-notepad',
@@ -9,26 +11,46 @@ import {NotepadService} from "../../services/notepad.service";
 })
 export class NotepadComponent implements OnInit {
 
-  public notepadForm: FormGroup;
+  public notepadDataSubscription: Subscription;
+  public notepadModel: Notepad = {
+    id: null,
+    title: '',
+    notes: []
+  };
 
   constructor(
     private notepadService: NotepadService
   ) { }
 
   ngOnInit(): void {
-    this.notepadForm = new FormGroup({
-      title: new FormControl(null, [
-        Validators.required,
-        Validators.maxLength(255)
-      ])
-    });
+    this.notepadDataSubscription = this.notepadService.notepadStream$
+      .subscribe(this.createForm.bind(this));
   }
 
   saveNotepad(): void {
-    const notepad = {
-      ...this.notepadForm.value,
-      notes: []
-    };
-    this.notepadService.createNotepad(notepad);
+    this.notepadService.saveNotepad(this.notepadModel);
+  }
+
+  addNewNote(note: Note) {
+    console.log(note);
+  }
+
+  async deleteNotepad() {
+    if(!this.notepadModel.id) {
+      return;
+    }
+
+    try {
+      await this.notepadService.deleteNotepad(this.notepadModel.id)
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private createForm(notepad: Notepad) {
+    if(!notepad) {
+      return;
+    }
+    this.notepadModel = notepad;
   }
 }

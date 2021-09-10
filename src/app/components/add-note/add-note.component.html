@@ -1,0 +1,30 @@
+<form [formGroup]="addNoteForm" (submit)="addNote()">
+  <h3 class="secondary-titles">My Notes</h3>
+  <input type="text" formControlName="title" class="form-control mt-2" placeholder="Enter note title...">
+  <div *ngIf="addNoteForm.get('title').invalid &&
+        addNoteForm.get('title').errors &&
+        (addNoteForm.get('title').dirty ||
+        addNoteForm.get('title').touched)"
+  >
+    <small class="text-danger" *ngIf="addNoteForm.get('title').hasError('required')">
+      This field is required.
+    </small>
+    <small class="text-danger" *ngIf="addNoteForm.get('title').hasError('maxlength')">
+      The maximum length for this field is {{addNoteForm.get('title').errors.maxlength.requiredLength}} characters.
+    </small>
+  </div>
+  <textarea formControlName="note" class="form-control mt-2" placeholder="Enter note..." rows="4"></textarea>
+  <div *ngIf="addNoteForm.get('note').invalid &&
+        addNoteForm.get('note').errors &&
+        (addNoteForm.get('note').dirty ||
+        addNoteForm.get('note').touched)"
+  >
+    <small class="text-danger" *ngIf="addNoteForm.get('note').hasError('required')">
+      This field is required.
+    </small>
+    <small class="text-danger" *ngIf="addNoteForm.get('note').hasError('maxlength')">
+      The maximum length for this field is {{addNoteForm.get('note').errors.maxlength.requiredLength}} characters.
+    </small>
+  </div>
+  <button class="btn btn-success mt-2" type="submit" [disabled]="!addNoteForm.valid">Add</button>
+</form>

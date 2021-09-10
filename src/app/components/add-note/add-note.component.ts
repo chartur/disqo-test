@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {Note} from "../../models/note";
 
 @Component({
   selector: 'app-add-note',
@@ -7,9 +9,29 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AddNoteComponent implements OnInit {
 
+  @Output('onAdd') onAdd: EventEmitter<Note> = new EventEmitter<Note>();
+  addNoteForm: FormGroup;
   constructor() { }
 
   ngOnInit(): void {
+    this.addNoteForm = new FormGroup({
+      title: new FormControl(null, [
+        Validators.required,
+        Validators.maxLength(255),
+      ]),
+      note: new FormControl(null, [
+        Validators.required,
+        Validators.maxLength(1000)
+      ])
+    })
+  }
+
+  addNote() {
+    if(!this.addNoteForm.valid) {
+      return;
+    }
+
+    this.onAdd.emit(this.addNoteForm.value)
   }
 
 }

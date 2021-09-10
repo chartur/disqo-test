@@ -5,9 +5,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NotepadComponent } from './pages/notepad/notepad.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
-import {ReactiveFormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AccessTokenInterceptor} from "../interceptors/access-token.interceptor";
 import { StatisticsComponent } from './pages/statistics/statistics.component';
+import {ComponentsModule} from "./components/components.module";
 
 @NgModule({
   declarations: [
@@ -20,6 +21,8 @@ import { StatisticsComponent } from './pages/statistics/statistics.component';
     AppRoutingModule,
     HttpClientModule,
     ReactiveFormsModule,
+    ComponentsModule,
+    FormsModule,
   ],
   providers: [
     {
