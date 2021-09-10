@@ -3,6 +3,7 @@ import {NotepadService} from "../../services/notepad.service";
 import {Subscription} from "rxjs";
 import {Notepad} from "../../models/notepad";
 import {Note} from "../../models/note";
+import {AlertService} from "../../services/alert.service";
 
 @Component({
   selector: 'app-notepad',
@@ -19,7 +20,8 @@ export class NotepadComponent implements OnInit {
   };
 
   constructor(
-    private notepadService: NotepadService
+    private notepadService: NotepadService,
+    private alertService: AlertService
   ) { }
 
   ngOnInit(): void {
@@ -28,12 +30,18 @@ export class NotepadComponent implements OnInit {
   }
 
   saveNotepad(): void {
-    this.notepadService.saveNotepad(this.notepadModel);
+    try {
+      this.notepadService.saveNotepad(this.notepadModel);
+      this.alertService.success('Notepad successfully saved!')
+    } catch (e) {
+      this.alertService.somethingWrong();
+    }
   }
 
-  addNewNote(note: Note) {
+  async addNewNote(note: Note) {
     this.notepadModel.notes.push(note);
-    this.notepadService.saveNotepad(this.notepadModel);
+    await this.notepadService.saveNotepad(this.notepadModel);
+    this.alertService.success('Note successfully saved!')
   }
 
   async deleteNotepad() {
@@ -42,15 +50,17 @@ export class NotepadComponent implements OnInit {
     }
 
     try {
-      await this.notepadService.deleteNotepad(this.notepadModel.id)
+      await this.notepadService.deleteNotepad(this.notepadModel.id);
+      this.alertService.success('Notepad successfully deleted!')
     } catch (e) {
-      console.error(e);
+      this.alertService.somethingWrong();
     }
   }
 
   async deleteNote(note: Note) {
     this.notepadModel.notes = this.notepadModel.notes.filter(n => n.id !== note.id);
-    this.notepadService.saveNotepad(this.notepadModel);
+    await this.notepadService.saveNotepad(this.notepadModel);
+    this.alertService.success('The note successfully deleted!')
   }
 
   private createForm(notepad: Notepad) {

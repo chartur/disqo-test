@@ -1,0 +1,3 @@
+<div class="alert" *ngIf="alert" [class.alert-danger]="!alert.status" [class.alert-success]="alert.status">
+  <p class="mb-0">{{alert.message}}</p>
+</div>

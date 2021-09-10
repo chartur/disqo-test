@@ -80,17 +80,14 @@ export class NotepadService {
   }
 
   deleteNotepad(notepadId: string) {
-    return this.http.delete(endpoints.deleteSingleGist.replace(':gistId', notepadId))
-      .pipe(
-        tap(() => {
-          this.storageService.destroyStorage();
-          this._notepad.next({
-            id: null,
-            title: '',
-            notes: []
-          });
-        })
-      ).toPromise();
+    this.storageService.destroyStorage();
+    this._notepad.next({
+      id: null,
+      title: '',
+      notes: []
+    });
+
+    return this.http.delete(endpoints.deleteSingleGist.replace(':gistId', notepadId)).toPromise();
   }
 
   private readLocalData() {
