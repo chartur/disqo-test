@@ -17,7 +17,9 @@ label {
 button {
   font-size: 14px;
 }
-
+textarea {
+  resize: none;
+}
 .btn-info, .btn-danger {
   color: #ffffff;
 }

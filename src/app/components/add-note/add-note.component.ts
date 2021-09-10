@@ -31,7 +31,12 @@ export class AddNoteComponent implements OnInit {
       return;
     }
 
-    this.onAdd.emit(this.addNoteForm.value)
+    const note = {
+      id: new Date().valueOf(),
+      ...this.addNoteForm.value
+    };
+    this.onAdd.emit(note);
+    this.addNoteForm.reset();
   }
 
 }

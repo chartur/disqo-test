@@ -1,0 +1,5 @@
+<div *ngFor="let note of notes" class="mt-2 overflow-hidden">
+  <input type="text" disabled [value]="note.title" class="form-control disabled">
+  <textarea class="form-control disabled mt-2" rows="4" disabled>{{note.note}}</textarea>
+  <button class="btn btn-danger mt-2 float-end" (click)="deleteNote(note)">Delete</button>
+</div>

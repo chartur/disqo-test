@@ -32,7 +32,8 @@ export class NotepadComponent implements OnInit {
   }
 
   addNewNote(note: Note) {
-    console.log(note);
+    this.notepadModel.notes.push(note);
+    this.notepadService.saveNotepad(this.notepadModel);
   }
 
   async deleteNotepad() {
@@ -45,6 +46,11 @@ export class NotepadComponent implements OnInit {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  async deleteNote(note: Note) {
+    this.notepadModel.notes = this.notepadModel.notes.filter(n => n.id !== note.id);
+    this.notepadService.saveNotepad(this.notepadModel);
   }
 
   private createForm(notepad: Notepad) {
