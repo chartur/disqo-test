@@ -11,6 +11,12 @@ import {StorageService} from "./storage.service";
 })
 export class NotepadService {
 
+  private emptyNotepad: Notepad = {
+    id: null,
+    title: '',
+    notes: []
+  };
+
   private _notepad: BehaviorSubject<Notepad> = new BehaviorSubject<Notepad>(null);
 
   public readonly notepadStream$ = this._notepad.asObservable();
@@ -68,11 +74,15 @@ export class NotepadService {
     return new Promise<Notepad>(async (resolve, reject) => {
       const url = endpoints.getGists;
       try {
-        const res: any = await this.http.get(url).toPromise();
+        const res: any[] = <any[]> await this.http.get(url).toPromise();
         if(!res.length) {
-          return resolve(null);
+          return resolve({...this.emptyNotepad});
         }
-        return resolve(await this.getGistById(res[0].id))
+        const gist = res.find(g => !!g.files['notepad.json']);
+        if(!gist) {
+          return resolve({...this.emptyNotepad});
+        }
+        return resolve(await this.getGistById(gist.id))
       } catch (e) {
         return reject(e)
       }
@@ -81,11 +91,7 @@ export class NotepadService {
 
   deleteNotepad(notepadId: string) {
     this.storageService.destroyStorage();
-    this._notepad.next({
-      id: null,
-      title: '',
-      notes: []
-    });
+    this._notepad.next({...this.emptyNotepad});
 
     return this.http.delete(endpoints.deleteSingleGist.replace(':gistId', notepadId)).toPromise();
   }
